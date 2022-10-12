@@ -2,6 +2,7 @@
 
 require 'sinatra'
 require 'sinatra/reloader'
+require 'sinatra/content_for'
 require 'tilt/erubis'
 
 def valid_list_name?(new_name)
@@ -46,4 +47,9 @@ end
 
 get '/lists/new' do
   erb :new_list, layout: :layout
+end
+
+get '/lists/:id' do
+  @list = session[:lists][params[:id].to_i]
+  erb :todo_items
 end
