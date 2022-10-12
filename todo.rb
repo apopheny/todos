@@ -53,3 +53,21 @@ get '/lists/:id' do
   @list = session[:lists][params[:id].to_i]
   erb :todo_items
 end
+
+get '/lists/edit/:id' do
+  @id = params[:id].to_i
+  erb :edit_list
+end
+
+post '/lists/edit/:id' do
+  list_name = params[:list_name].strip
+  valid_list_name?(list_name)
+  list_id = params[:id].to_i
+
+  if session[:error]
+    redirect '/lists/edit/:id'
+  elsif session[:success]
+    session[:lists][list_id][:name] = list_name
+    redirect '/lists'
+  end
+end
