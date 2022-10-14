@@ -5,14 +5,28 @@ require 'sinatra/reloader'
 require 'sinatra/content_for'
 require 'tilt/erubis'
 
+def name_length_error
+  session[:error] = 'Entry must be between 1 and 100 characters.'
+end
+
 def valid_list_name?(new_name, update: false)
   new_name = new_name.strip
   if !(1..100).cover?(new_name.size)
-    session[:error] = 'List name must be between 1 and 100 characters.'
+    name_length_error
   elsif session[:lists].any? { |list| list[:name] == new_name }
     handle_duplicates(new_name, update)
   else
     session[:success] = update ? 'The list has been updated.' : 'The list has been created.'
+  end
+end
+
+def valid_todo_name?(new_name)
+  if !(1..100).cover?(new_name.size)
+    name_length_error
+    false
+  else
+    session[:success] = "Todo item \"#{new_name}\" has been added."
+    true
   end
 end
 
@@ -33,15 +47,18 @@ before do
   session[:lists] ||= []
 end
 
+# view all lists by default
 get '/' do
   redirect '/lists'
 end
 
+# view all lists
 get '/lists' do
   @lists = session[:lists]
   erb :lists
 end
 
+# submit new list
 post '/lists' do
   list_name = params[:list_name].strip
   valid_list_name?(list_name)
@@ -54,19 +71,25 @@ post '/lists' do
   end
 end
 
+# access page to create a new list
 get '/lists/new' do
   erb :new_list, layout: :layout
 end
 
+# retrieve list details
 get '/lists/:id' do
   @list = session[:lists][params[:id].to_i]
   erb :todo_items
 end
 
+# access page to edit a list
 get '/lists/:id/edit' do
+  @list_id = params[:id].to_i
+  @list_name = session[:lists][@list_id][:name]
   erb :edit_list
 end
 
+# submit list changes
 post '/lists/:id/edit' do
   list_id = params[:id].to_i
   list_name = params[:list_name]
@@ -78,4 +101,42 @@ post '/lists/:id/edit' do
     session[:lists][list_id][:name] = list_name
     redirect "/lists/#{list_id}"
   end
+end
+
+# delete a list
+post '/lists/:id/delete_list' do
+  id = params[:id].to_i
+  name = session[:lists][id][:name]
+
+  session[:lists].delete_at(id)
+
+  session[:success] = "List \"#{name}\" has been successfully deleted"
+
+  redirect '/lists'
+end
+
+# add a new todo item to a list
+post '/lists/:list_id/add_item' do
+  id = params[:list_id].to_i
+  @list = session[:lists][id]
+  name = params[:todo].strip
+
+  if valid_todo_name?(name)
+    (session[:lists][id][:todos] << { name:, completed: false })
+    redirect "/lists/#{id}"
+  else
+    erb :todo_items
+  end
+end
+
+post '/lists/:list_id/todos/delete/:item_id' do
+  list_id = params[:list_id].to_i
+  item_id = params[:item_id].to_i
+  list = session[:lists][list_id]
+  item_name = session[:lists][list_id][:todos][item_id][:name]
+  session[:success] = "\"#{item_name}\" was successfully deleted."
+
+  list[:todos].delete_at(item_id)
+
+  redirect "/lists/#{list_id}"
 end

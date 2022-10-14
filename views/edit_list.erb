@@ -1,3 +1,14 @@
+<section id="todos">
+  <header>
+    <h2>Editing "<%= @list_name %>"</h2>
+    <ul>    
+      <form action='/lists/<%= @list_id %>/delete_list' method='post'>
+        <button type='submit' class='delete'>Delete List</button>
+      </form>
+    </ul>
+  </header>
+</section>
+
 <form action="/lists/<%= params[:id] %>/edit" method="post">
   <dl>
     <dt>
@@ -9,6 +20,6 @@
   </dl>
   <fieldset class="actions">
     <input type="submit" value="Save">
-    <a href="/lists">Cancel</a>
+    <a href="/lists/<%= params[:id] %>">Cancel</a>
   </fieldset>
 </form>
