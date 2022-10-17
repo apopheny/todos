@@ -38,6 +38,10 @@ def handle_duplicates(name, update)
   end
 end
 
+def valid_string_int?(str)
+  Integer(str, exception: false)
+end
+
 configure do
   enable :sessions
   set :session_secret, 'secret'
@@ -129,7 +133,8 @@ post '/lists/:list_id/add_item' do
   end
 end
 
-post '/lists/:list_id/todos/delete/:item_id' do
+# delete a todo item
+post '/lists/:list_id/todos/:item_id/delete' do
   list_id = params[:list_id].to_i
   item_id = params[:item_id].to_i
   list = session[:lists][list_id]
@@ -137,6 +142,37 @@ post '/lists/:list_id/todos/delete/:item_id' do
   session[:success] = "\"#{item_name}\" was successfully deleted."
 
   list[:todos].delete_at(item_id)
+
+  redirect "/lists/#{list_id}"
+end
+
+# mark a todo item as completed
+post '/lists/:list_id/todos/:item_id/checkbox' do
+  list_id = params[:list_id].to_i
+  item_id = params[:item_id].to_i
+  todo_item = session[:lists][list_id][:todos][item_id]
+  todo_name = todo_item[:name]
+  todo_completed = params[:completed] == 'true'
+
+  todo_item[:completed] = todo_completed
+
+  session[:success] = if todo_completed
+                        "\"#{todo_name}\" is complete!"
+                      else
+                        "\"#{todo_name}\" is incomplete."
+                      end
+
+  redirect "/lists/#{list_id}"
+end
+
+# mark all todo items as completed
+post '/lists/:list_id/todos/complete_all' do
+  list_id = valid_string_int?(params[:list_id])
+  list = session[:lists][list_id]
+  list_name = session[:lists][list_id][:name]
+
+  list[:todos].each { |todo| todo[:completed] = true }
+  session[:success] = "All items in \"#{list_name}\" are complete!"
 
   redirect "/lists/#{list_id}"
 end
