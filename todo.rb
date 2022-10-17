@@ -38,13 +38,23 @@ def handle_duplicates(name, update)
   end
 end
 
-def valid_string_int?(str)
-  Integer(str, exception: false)
-end
-
 configure do
   enable :sessions
   set :session_secret, 'secret'
+end
+
+helpers do 
+  def list_complete?(list)
+    list[:todos].size >= 1 && list[:todos].all? { |todo| todo[:completed] }
+  end
+
+  def valid_string_int?(str)
+    Integer(str, exception: false)
+  end
+
+  def list_class(list)
+    list_complete?(list) ? 'complete' : ''
+  end
 end
 
 before do
