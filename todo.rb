@@ -16,7 +16,8 @@ def valid_list_name?(new_name, update: false)
   elsif session[:lists].any? { |list| list[:name] == new_name }
     handle_duplicates(new_name, update)
   else
-    session[:success] = update ? 'The list has been updated.' : 'The list has been created.'
+    session[:success] =
+      update ? 'The list has been updated.' : 'The list has been created.'
   end
 end
 
@@ -43,7 +44,7 @@ configure do
   set :session_secret, 'secret'
 end
 
-helpers do 
+helpers do
   def list_complete?(list)
     list[:todos].size >= 1 && list[:todos].all? { |todo| todo[:completed] }
   end
