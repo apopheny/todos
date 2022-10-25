@@ -39,10 +39,18 @@ def handle_duplicates(name, update)
   end
 end
 
+def load_list(index)
+  list = session[:lists][index] if index && session[:lists][index]
+  return list if list
+
+  session[:error] = "The list specified was not found."
+  redirect "/lists"
+end
+
 configure do
   enable :sessions
   set :session_secret, 'secret'
-  set :erb, :escape_html => true
+  set :erb, escape_html: true
 end
 
 helpers do
@@ -105,7 +113,7 @@ end
 
 # retrieve list details
 get '/lists/:id' do
-  @list = session[:lists][params[:id].to_i]
+  @list = load_list(params[:id].to_i)
   todo_map_completed(@list[:todos])
   erb :todo_items
 end
