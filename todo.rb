@@ -120,6 +120,7 @@ end
 
 # access page to edit a list
 get '/lists/:id/edit' do
+  load_list(params[:id].to_i)
   @list_id = params[:id].to_i
   @list_name = session[:lists][@list_id][:name]
   erb :edit_list
@@ -127,6 +128,7 @@ end
 
 # submit list changes
 post '/lists/:id/edit' do
+  load_list(params[:id].to_i)
   list_id = params[:id].to_i
   list_name = params[:list_name]
   valid_list_name?(list_name, update: true)
@@ -141,6 +143,7 @@ end
 
 # delete a list
 post '/lists/:id/delete_list' do
+  load_list(params[:id].to_i)
   id = params[:id].to_i
   name = session[:lists][id][:name]
 
@@ -153,6 +156,7 @@ end
 
 # add a new todo item to a list
 post '/lists/:list_id/add_item' do
+  load_list(params[:list_id].to_i)
   id = params[:list_id].to_i
   @list = session[:lists][id]
   name = params[:todo].strip
@@ -167,6 +171,7 @@ end
 
 # delete a todo item
 post '/lists/:list_id/todos/:item_id/delete' do
+  load_list(params[:list_id].to_i)
   list_id = params[:list_id].to_i
   item_id = params[:item_id].to_i
   list = session[:lists][list_id]
@@ -180,6 +185,7 @@ end
 
 # mark a todo item as completed
 post '/lists/:list_id/todos/:item_id/checkbox' do
+  load_list(params[:list_id].to_i)
   list_id = params[:list_id].to_i
   item_id = params[:item_id].to_i
   todo_item = session[:lists][list_id][:todos][item_id]
@@ -199,6 +205,7 @@ end
 
 # mark all todo items as completed
 post '/lists/:list_id/todos/complete_all' do
+  load_list(params[:list_id].to_i)
   list_id = valid_string_int?(params[:list_id])
   list = session[:lists][list_id]
   list_name = session[:lists][list_id][:name]
