@@ -57,9 +57,13 @@ helpers do
     list_complete?(list) ? 'complete' : ''
   end
   
-  def list_map_completed(list)
+  def todo_map_completed(todos)
     # list.sort_by! { |todo| todo[:name] } # this will alphabetize the list but may not be desired by user
-    list.sort_by! { |todo| todo[:completed] ? 1 : 0 }
+    todos.sort_by! { |todo| todo[:completed] ? 1 : 0 }
+  end
+
+  def list_map_completed(list)
+    list.sort_by! { |lists| list_complete?(lists) ? 1 : 0 }
   end
 end
 
@@ -75,6 +79,7 @@ end
 # view all lists
 get '/lists' do
   @lists = session[:lists]
+  list_map_completed(@lists)
   erb :lists
 end
 
@@ -99,7 +104,7 @@ end
 # retrieve list details
 get '/lists/:id' do
   @list = session[:lists][params[:id].to_i]
-  list_map_completed(@list[:todos])
+  todo_map_completed(@list[:todos])
   erb :todo_items
 end
 
