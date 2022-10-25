@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'sinatra'
-require 'sinatra/reloader'
+require 'sinatra/reloader' if development?
 require 'sinatra/content_for'
 require 'tilt/erubis'
 
@@ -56,14 +56,14 @@ helpers do
   def list_class(list)
     list_complete?(list) ? 'complete' : ''
   end
-  
+
   def todo_map_completed(todos)
     todos.sort_by! { |todo| todo[:completed] ? 1 : 0 }
   end
 
   def list_map_completed(list)
     list.sort_by! do |todo_list|
-      list_complete?(todo_list) ? 1  : 0
+      list_complete?(todo_list) ? 1 : 0
     end
   end
 end
