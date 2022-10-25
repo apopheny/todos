@@ -56,6 +56,11 @@ helpers do
   def list_class(list)
     list_complete?(list) ? 'complete' : ''
   end
+  
+  def list_map_completed(list)
+    # list.sort_by! { |todo| todo[:name] } # this will alphabetize the list but may not be desired by user
+    list.sort_by! { |todo| todo[:completed] ? 1 : 0 }
+  end
 end
 
 before do
