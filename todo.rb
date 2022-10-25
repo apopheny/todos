@@ -58,12 +58,13 @@ helpers do
   end
   
   def todo_map_completed(todos)
-    # list.sort_by! { |todo| todo[:name] } # this will alphabetize the list but may not be desired by user
     todos.sort_by! { |todo| todo[:completed] ? 1 : 0 }
   end
 
   def list_map_completed(list)
-    list.sort_by! { |lists| list_complete?(lists) ? 1 : 0 }
+    list.sort_by! do |todo_list|
+      list_complete?(todo_list) ? 1  : 0
+    end
   end
 end
 
