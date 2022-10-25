@@ -55,6 +55,11 @@ helpers do
   def list_class(list)
     list_complete?(list) ? 'complete' : ''
   end
+
+  def list_map_completed(list)
+    list.sort_by! { |todo| todo[:name] }
+    list.sort_by! { |todo| todo[:completed] ? 1 : 0 }
+  end
 end
 
 before do
@@ -93,6 +98,7 @@ end
 # retrieve list details
 get '/lists/:id' do
   @list = session[:lists][params[:id].to_i]
+  list_map_completed(@list[:todos])
   erb :todo_items
 end
 
