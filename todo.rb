@@ -157,6 +157,11 @@ post '/lists/:id/delete_list' do
   end
 end
 
+def next_todo_id(todos)
+  max = todos.map { |todo| todo[:id] }.max || 0
+  max + 1
+end
+
 # add a new todo item to a list
 post '/lists/:list_id/add_item' do
   load_list(params[:list_id].to_i)
@@ -165,14 +170,15 @@ post '/lists/:list_id/add_item' do
   name = params[:todo].strip
 
   if valid_todo_name?(name)
-    (session[:lists][id][:todos] << { name:, completed: false })
+    todo_id = next_todo_id(@list[:todos])
+    (session[:lists][id][:todos] << { id: todo_id, name:, completed: false })
     redirect "/lists/#{id}"
   else
     erb :todo_items
   end
 end
 
-# delete a todo item
+# delete a todo item from a list
 post '/lists/:list_id/todos/:item_id/delete' do
   list_id = params[:list_id].to_i
   @list = load_list(list_id)
